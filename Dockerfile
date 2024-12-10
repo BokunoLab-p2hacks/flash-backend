@@ -16,7 +16,7 @@ RUN python3.11 -m venv /app/myenv
 RUN /app/myenv/bin/pip install --no-cache-dir -r requirements.txt
 
 # ポート番号を指定（Cloud Run のデフォルトポートは 8080）
-EXPOSE 8080
+EXPOSE 10000
 
 # コンテナ起動時に実行するコマンドを指定
-CMD ["/app/myenv/bin/python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["/app/myenv/bin/python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "10000"]
