@@ -4,27 +4,6 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import random
-import os
-import subprocess
-
-# 仮想環境の作成、アクティベート、および依存関係のインストール
-def setup_environment():
-    venv_path = "./myenv"
-    if not os.path.exists(venv_path):
-        print("仮想環境を作成中...")
-        subprocess.run(["python3.11", "-m", "venv", venv_path], check=True)
-
-    activate_script = os.path.join(venv_path, "Scripts", "activate") if os.name == "nt" else os.path.join(venv_path, "bin", "activate")
-
-    if not os.path.exists(activate_script):
-        raise FileNotFoundError("仮想環境が正しく作成されていません。")
-
-    print("仮想環境を有効化中...")
-    # 仮想環境の有効化をシミュレートして必要なコマンドを実行
-    pip_install_command = f"source {activate_script} && pip install -r requirements.txt"
-    subprocess.run(pip_install_command, shell=True, check=True)
-
-setup_environment()
 
 # モデルとトークナイザーの読み込み
 tokenizer = AutoTokenizer.from_pretrained("model_checkpoint")
