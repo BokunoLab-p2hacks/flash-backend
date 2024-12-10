@@ -65,46 +65,41 @@ def analyze_emotion(text: str):
             "信頼は大切な絆です。そのまま進みましょう。",
             "信頼を基盤に、新しい挑戦をしてみてください！"
         ],
-        "期待":[
-            "それは素敵な計画ですね！期待が膨らむのも無理ありません。その瞬間を思いっきり楽しんでください！",
-            "楽しみにしていることがあるんですね。準備を進めながら、その気持ちを大切にしましょう！",
-            "ワクワクする気持ちが伝わってきます。きっと素晴らしい経験になりますよ！"
+        "期待": [
+            "期待感があるんですね！その期待に応えるために、自分を信じて進んでいきましょう！",
+            "期待は素晴らしいエネルギーです。その期待を裏切らないように頑張りましょう！",
+            "期待に応えるために、一歩ずつ前進していきましょう！"
+        ],
+        # ここから複数の感情を含む応答文
+        # 1番の感情：喜び
+        "喜び+悲しみ": [
+            "その喜びと期待感、素晴らしいですね！その気持ちをもっと広げていきましょう！",
+            "喜びと期待感があると、前向きな行動ができますね！",
+            "その喜びと期待感を大切にしてください！"
         ]
     }
+    #print(f"Top emotion: {top_emotion}")
 
     # ランダムに応答を選択
     responses = response_dict.get(top_emotion, ["その気持ちをもっと話してみてください。"])
     response = random.choice(responses)
 
+    #複数の感情を含む応答を選択
+    if top_emotion == "喜び" and second_emotion == "悲しみ":
+        responses = response_dict.get("喜び+悲しみ", ["その気持ちをもっと話してみてください。"])
+        response = random.choice(responses)
+        print(response)
+
     # numpy.float32をfloatに変換
     #out_dict = {n: float(p) for n, p in zip(emotion_names_jp, prob)}
     out_dict = {"1位の感情":top_emotion,"2位の感情":second_emotion}
 
+    print(out_dict, response)
+    print(prob)
+    print(response_dict["喜び"])
     return out_dict, response
 
-# FastAPIアプリケーションの作成
-app = FastAPI()
+analyze_emotion("今日はいい天気ですね！")
 
-# CORS設定
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # 必要に応じて許可するオリジンを指定
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# リクエストモデル
-class EmotionRequest(BaseModel):
-    text: str
 
-# エンドポイント: ルート
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the Emotion Analysis API"}
-
-# エンドポイント: 感情分析
-@app.post("/analyze_emotion/")
-async def analyze_emotion_api(request: EmotionRequest):
-    result = analyze_emotion(request.text)
-    return {"input_text": request.text, "emotion_probabilities": result}
