@@ -50,7 +50,7 @@ def analyze_emotion(text: str):
     print(response_dict["喜び"])
     return out_dict, response
 
-#analyze_emotion("今日はいい天気ですね！")
+analyze_emotion("今日はいい天気ですね！")
 
 
 #ランダムで慰め以外のお叱りを返す

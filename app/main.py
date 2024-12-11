@@ -5,6 +5,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import random
 import google.generativeai as genai
+from dotenv import load_dotenv
 
 
 # モデルとトークナイザーの読み込み
