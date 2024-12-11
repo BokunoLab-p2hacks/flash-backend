@@ -6,6 +6,7 @@ import google.generativeai as genai
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import random
+from pydantic import BaseModel  # 追加
 #from response_dict import response_dict
 
 # 環境変数の読み込み
