@@ -1,11 +1,7 @@
-# ベースイメージを指定
+# ベースイメージ
 FROM python:3.11-slim
 
-# 環境変数の設定
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# 作業ディレクトリを作成
+# 作業ディレクトリの設定
 WORKDIR /app
 
 # 必要なパッケージをインストール
@@ -22,15 +18,16 @@ RUN python3.11 -m venv /app/myenv
 
 # 必要な依存ファイルをコピー
 COPY requirements.txt /app/
-
-# 仮想環境を有効化して依存関係をインストール
 RUN /app/myenv/bin/pip install --no-cache-dir -r requirements.txt
 
 # アプリケーションコードをコピー
-COPY . /app/
+COPY app /app/app
+
+# モデルチェックポイントをコピー
+COPY model_checkpoint /app/model_checkpoint
 
 # 必要なポートを公開
 EXPOSE 8000
 
-# 仮想環境を有効化してFastAPIアプリを実行
-CMD ["sh", "-c", "/app/myenv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
+# アプリケーションを起動
+CMD ["/app/myenv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
