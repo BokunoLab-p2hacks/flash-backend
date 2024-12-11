@@ -41,10 +41,10 @@ def analyze_emotion(text: str):
     second_emotion = emotion_names_jp[np.argsort(prob)[-2]]
     probs = []
     for i in range(len(prob)):
-        probs.append((emotion_names_jp[i], prob[i]))
+        probs.append((emotion_names_jp[i], float(prob[i])))
     return probs, top_emotion, second_emotion
 
-print(analyze_emotion("今日はいい天気ですね！"))
+#print(analyze_emotion("今日はいい天気ですね！"))
 
 def responseGemini(text: str):
     question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。ただし、文章は2文以内でお願いします。"
@@ -59,6 +59,7 @@ def analyze_gemini(text: str):
     # Gemini
     question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。ただし、文章は2文以内でお願いします。"
     res = model.generate_content(question)
+    probs = [(emotion, float(prob)) for emotion, prob in probs]
     return probs, top_emotion, second_emotion, res.text
 
 #print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
