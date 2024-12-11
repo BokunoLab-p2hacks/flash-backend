@@ -143,9 +143,19 @@ async def response_api(request: EmotionRequest):
         raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
 
 
-
 # エンドポイント：感情の傾向に対する応答
-
+@app.post("/response-to-mindMove/")
+async def response_to_mindMove_api(request: EmotionRequest):
+    input_text = request.input_text
+    question = "あなたは女神です。-女神になりきり、感情の傾向に対して応答してください"
+    try:
+        # Gemini APIを呼び出して応答を生成
+        res = model.generate_content(question)
+        return {"response": res.text}
+    except Exception as e:
+        # エラー時の処理
+        raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
+        
 # エンドポイント：怒る応答
 
 
