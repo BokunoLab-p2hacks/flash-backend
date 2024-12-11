@@ -30,4 +30,4 @@ COPY model_checkpoint /app/model_checkpoint
 EXPOSE 8000
 
 # アプリケーションを起動
-CMD ["/app/myenv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$PORT"]
+CMD ["sh", "-c", "/app/myenv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
