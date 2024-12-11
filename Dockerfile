@@ -33,4 +33,4 @@ COPY . /app/
 EXPOSE 8000
 
 # 仮想環境を有効化してFastAPIアプリを実行
-CMD ["/app/myenv/bin/uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "$(echo $PORT)"]
+CMD ["sh", "-c", "/app/myenv/bin/uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
