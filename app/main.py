@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
 import random
+import google.generativeai as genai
+
 
 # モデルとトークナイザーの読み込み
 tokenizer = AutoTokenizer.from_pretrained("model_checkpoint")
@@ -82,6 +84,22 @@ def analyze_emotion(text: str):
 
     return out_dict, response
 
+
+## gemini-api
+# 環境変数の読み込み
+load_dotenv()
+
+# Google Gemini APIの設定
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY is not set in the environment variables.")
+
+genai.configure(api_key=GOOGLE_API_KEY)
+
+# 使用するモデルの設定
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+
 # FastAPIアプリケーションの作成
 app = FastAPI()
 
@@ -108,3 +126,25 @@ async def root():
 async def analyze_emotion_api(request: EmotionRequest):
     result = analyze_emotion(request.text)
     return {"input_text": request.text, "emotion_probabilities": result}
+
+# エンドポイント: 投稿に対する応答(gemini-api)
+@app.post("/response/")
+async def response_api(request: EmotionRequest):
+    input_text = request.input_text
+    question = f"{input_text}の文章に対して肯定的なアドバイスを返してください。"
+
+    try:
+        # Gemini APIを呼び出して応答を生成
+        res = model.generate_content(question)
+        return {"response": res.text}
+    except Exception as e:
+        # エラー時の処理
+        raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
+
+
+
+# エンドポイント：感情の傾向に対する応答
+
+# エンドポイント：怒る応答
+
+
