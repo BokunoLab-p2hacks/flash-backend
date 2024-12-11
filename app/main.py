@@ -47,17 +47,27 @@ def analyze_emotion(text: str):
 #print(analyze_emotion("今日はいい天気ですね！"))
 
 def responseGemini(text: str):
-    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。ただし、文章は2文以内でお願いします。"
+    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
     res = model.generate_content(question)
     return res.text
 
 #print(responseGemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
 
+def response_scold(text: str):
+    question = f"{text}の文章に対してお叱りをしてください。"
+    res = model.generate_content(question)
+    return res.text
+
+def response_praise(text: str):
+    question = f"{text}の文章に対して褒め言葉をしてください。"
+    res = model.generate_content(question)
+    return res.text
+
 def analyze_gemini(text: str):
     # 感情分析
     probs, top_emotion, second_emotion = analyze_emotion(text)
     # Gemini
-    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。ただし、文章は2文以内でお願いします。"
+    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
     res = model.generate_content(question)
     probs = [(emotion, float(prob)) for emotion, prob in probs]
     return probs, top_emotion, second_emotion, res.text
@@ -121,6 +131,20 @@ async def analyze_gemini_endpoint(request: EmotionRequest):
     }
 
 # エンドポイント: 感情、投稿の傾向に合わせた応答
-@app.post("/moveMatch_response")
-async def moveMatch_response():
-    return {"message": "投稿頻度、感情の動きに合わせた応答を返します"}
+@app.post("/scold_response")
+async def response_scold_endpoint(request: EmotionRequest):
+    text = request.text
+    response = response_scold(text)
+    return {
+        "text": text,
+        "response": response
+    }
+
+@app.post("/praise_response")
+async def response_praise_endpoint(request: EmotionRequest):
+    text = request.text
+    response = response_praise(text)
+    return {
+        "text": text,
+        "response": response
+    }
