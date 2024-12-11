@@ -21,9 +21,15 @@ genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # モデルとトークナイザーの読み込み
-tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
-model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
-
+try:
+    MODEL_PATH = "/model_checkpoint"
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    model_h = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+    print("Model and tokenizer loaded successfully!")
+except Exception as e:
+    print(f"Error loading model or tokenizer: {e}")
+    raise e
+    
 emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼']
 
 # Softmax 関数の実装
