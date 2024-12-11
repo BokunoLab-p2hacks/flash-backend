@@ -6,6 +6,7 @@ import numpy as np
 import random
 import google.generativeai as genai
 from dotenv import load_dotenv
+import os
 
 
 # モデルとトークナイザーの読み込み
@@ -155,7 +156,7 @@ async def response_to_mindMove_api(request: EmotionRequest):
     except Exception as e:
         # エラー時の処理
         raise HTTPException(status_code=500, detail=f"Error generating response: {str(e)}")
-        
+
 # エンドポイント：怒る応答
 
 
