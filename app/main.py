@@ -23,8 +23,13 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 # モデルとトークナイザーの読み込み
 tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
 model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
+#ローカルパス
+#tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
+#model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
+
 
 emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼']
+emotion_names_en = ['joy', 'sadness', 'anticipation', 'surprise', 'anger', 'fear', 'disgust', 'trust']
 
 # Softmax 関数の実装
 def np_softmax(x):
@@ -37,14 +42,14 @@ def analyze_emotion(text: str):
     tokens = tokenizer(text, truncation=True, max_length=512, return_tensors="pt")
     preds = model_h(**tokens)
     prob = np_softmax(preds.logits.cpu().detach().numpy()[0]) 
-    top_emotion = emotion_names_jp[np.argmax(prob)]
-    second_emotion = emotion_names_jp[np.argsort(prob)[-2]]
+    top_emotion = emotion_names_en[np.argmax(prob)]
+    second_emotion = emotion_names_en[np.argsort(prob)[-2]]
     probs = []
     for i in range(len(prob)):
-        probs.append((emotion_names_jp[i], float(prob[i])))
-    return probs, top_emotion, second_emotion
+        probs.append((emotion_names_en[i], float(prob[i])))
+    return probs
 
-#print(analyze_emotion("今日はいい天気ですね！"))
+#print(analyze_emotion("親戚のおじさんが亡くなりました。"))
 
 def responseGemini(text: str):
     question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
@@ -63,14 +68,21 @@ def response_praise(text: str):
     res = model.generate_content(question)
     return res.text
 
+def filtaring_emotion(text: str):
+    question = f"{text}の内容が誹謗中傷や差別的な表現、死、病気、体調などの意味を含む場合は-1、含まない場合は1を返してください。"
+    res = model.generate_content(question)
+    return res.text
+
+#print(filtaring_emotion("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+
 def analyze_gemini(text: str):
     # 感情分析
-    probs, top_emotion, second_emotion = analyze_emotion(text)
+    probs = analyze_emotion(text)
     # Gemini
     question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
     res = model.generate_content(question)
     probs = [(emotion, float(prob)) for emotion, prob in probs]
-    return probs, top_emotion, second_emotion, res.text
+    return probs, res.text
 
 #print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
 
