@@ -5,7 +5,6 @@ import os
 import google.generativeai as genai
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import numpy as np
-import random
 from pydantic import BaseModel
 
 # 環境変数の読み込み
@@ -23,10 +22,9 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 # モデルとトークナイザーの読み込み
 tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
 model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
-#ローカルパス
-#tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
-#model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
-
+# ローカルパス
+# tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
+# model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
 
 emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼']
 emotion_names_en = ['joy', 'sadness', 'anticipation', 'surprise', 'anger', 'fear', 'disgust', 'trust']
@@ -66,12 +64,12 @@ def response_praise(text: str):
     res = model.generate_content(question)
     return res.text
 
-def filtaring_emotion(text: str):
+def filtering_emotion(text: str):
     question = f"{text}の内容が誹謗中傷や差別的な表現、死、病気、体調などの意味を含む場合は-1、含まない場合は1を返してください。"
     res = model.generate_content(question)
     return res.text
 
-#print(filtaring_emotion("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+#print(filtering_emotion("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
 
 def analyze_gemini(text: str):
     # 感情分析
@@ -110,7 +108,7 @@ async def root():
 async def analyze_emotion_endpoint(request: EmotionRequest):
     text = request.text
     response = analyze_emotion(text)
-    response_dict = {probs}
+    response_dict = {emotion: prob for emotion, prob in response}
     return {
         "text": text,
         "response": response_dict,
@@ -130,12 +128,11 @@ async def responseGemini_endpoint(request: EmotionRequest):
 @app.post("/analyze_gemini")
 async def analyze_gemini_endpoint(request: EmotionRequest):
     text = request.text
-    probs = analyze_gemini(text)
-    probs_dict = {probs}
-    response = responseGemini(text)
+    probs, gemini_response = analyze_gemini(text)
+    probs_dict = {emotion: prob for emotion, prob in probs}
     return {
         "text": text,
-        "response": response,
+        "response": gemini_response,
         "probability": probs_dict,
     }
 
