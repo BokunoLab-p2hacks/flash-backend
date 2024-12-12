@@ -42,7 +42,7 @@ def analyze_emotion(text: str):
     preds = model_h(**tokens)
     prob = np_softmax(preds.logits.cpu().detach().numpy()[0]) 
     for i, emotion in enumerate(emotion_names_en):
-        probs.append((emotion, prob[i]))
+        probs.append((emotion, float(prob[i])))
     return probs
 
 print(analyze_emotion("親戚のおじさんが亡くなりました。"))
@@ -108,7 +108,7 @@ async def root():
 async def analyze_emotion_endpoint(request: EmotionRequest):
     text = request.text
     response = analyze_emotion(text)
-    response_dict = {emotion: prob for emotion, prob in response}
+    response_dict = {emotion: float(prob) for emotion, prob in response}
     return {
         "text": text,
         "response": response_dict,
