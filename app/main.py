@@ -21,11 +21,11 @@ genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # モデルとトークナイザーの読み込み
-#tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
-#model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
+tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
+model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
 #ローカルパス
-tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
-model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
+#tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
+#model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
 
 
 emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼']
