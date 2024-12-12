@@ -38,13 +38,16 @@ def np_softmax(x):
 
 # 感情分析関数
 def analyze_emotion(text: str):
+    probs = []
     model_h.eval()
     tokens = tokenizer(text, truncation=True, max_length=512, return_tensors="pt")
     preds = model_h(**tokens)
     prob = np_softmax(preds.logits.cpu().detach().numpy()[0]) 
-    return [(emotion, float(prob)) for emotion, prob in zip(emotion_names_en, prob)]
+    for i, emotion in enumerate(emotion_names_en):
+        probs.append((emotion, prob[i]))
+    return probs
 
-#print(analyze_emotion("親戚のおじさんが亡くなりました。"))
+print(analyze_emotion("親戚のおじさんが亡くなりました。"))
 
 def responseGemini(text: str):
     question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
@@ -107,10 +110,10 @@ async def root():
 async def analyze_emotion_endpoint(request: EmotionRequest):
     text = request.text
     response = analyze_emotion(text)
-    response_dict = {emotion: prob for emotion, prob in response}
+    response_dict = {probs}
     return {
         "text": text,
-        "response": response,
+        "response": response_dict,
     }
 
 # エンドポイント: Gemini
@@ -128,12 +131,12 @@ async def responseGemini_endpoint(request: EmotionRequest):
 async def analyze_gemini_endpoint(request: EmotionRequest):
     text = request.text
     probs = analyze_gemini(text)
-    probs_dict = {emotion: prob for emotion, prob in response}
+    probs_dict = {probs}
     response = responseGemini(text)
     return {
         "text": text,
         "response": response,
-        "probability": probs,
+        "probability": probs_dict,
     }
 
 # エンドポイント: 感情、投稿の傾向に合わせた応答
