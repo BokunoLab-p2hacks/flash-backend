@@ -23,8 +23,8 @@ model = genai.GenerativeModel('gemini-1.5-flash')
 tokenizer = AutoTokenizer.from_pretrained("/app/model_checkpoint")
 model_h = AutoModelForSequenceClassification.from_pretrained("/app/model_checkpoint")
 # ローカルパス
-# tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
-# model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
+#tokenizer = AutoTokenizer.from_pretrained("../model_checkpoint")
+#model_h = AutoModelForSequenceClassification.from_pretrained("../model_checkpoint")
 
 emotion_names_jp = ['喜び', '悲しみ', '期待', '驚き', '怒り', '恐れ', '嫌悪', '信頼']
 emotion_names_en = ['joy', 'sadness', 'anticipation', 'surprise', 'anger', 'fear', 'disgust', 'trust']
@@ -45,42 +45,51 @@ def analyze_emotion(text: str):
         probs.append((emotion, float(prob[i])))
     return probs
 
-print(analyze_emotion("親戚のおじさんが亡くなりました。"))
+#print(analyze_emotion("親戚のおじさんが亡くなりました。"))
 
 def responseGemini(text: str):
-    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
+    #question = f"{text}の文章に対して、ねぎらいの言葉とともに、モチベーションが上がるような提案を2文で返してください"
+    question = f"{text}の文章に対して、シンプルな共感と励ましの言葉とリフレッシュ方法を2文以内で返してください。"
     res = model.generate_content(question)
     return res.text
 
-#print(responseGemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+print(responseGemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+print(responseGemini("夜中に目が覚めて、そこから全然眠れない。明日も仕事なのに…。"))
+print(responseGemini("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+print(responseGemini("スマホ落として画面がバキバキに…。"))
 
 def response_scold(text: str):
-    question = f"{text}の文章に対してお叱りをしてください。"
+    question = f"{text}の文章に対してお叱りを2文以内で返してください。"
     res = model.generate_content(question)
     return res.text
+
+print(response_scold("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
 
 def response_praise(text: str):
-    question = f"{text}の文章に対して褒め言葉をしてください。"
+    question = f"{text}の文章に対して褒め言葉を2文以内で返してください。"
     res = model.generate_content(question)
     return res.text
 
-def filtering_emotion(text: str):
+print(response_praise("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+
+def filtering_post(text: str):
     question = f"{text}の内容が誹謗中傷や差別的な表現、死、病気、体調などの意味を含む場合は-1、含まない場合は1を返してください。"
     res = model.generate_content(question)
-    return res.text
+    score = int(res.text)
+    return res.text, score
 
-#print(filtering_emotion("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+print(filtering_post("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
 
 def analyze_gemini(text: str):
     # 感情分析
     probs = analyze_emotion(text)
     # Gemini
-    question = f"{text}の文章に対して肯定的な慰めやアドバイスを返してください。"
+    question = f"{text}の文章に対して、シンプルな共感と励ましの言葉とリフレッシュ方法を2文以内で返してください。"
     res = model.generate_content(question)
     probs = [(emotion, float(prob)) for emotion, prob in probs]
     return probs, res.text
 
-#print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
 
 # FastAPIアプリケーションの作成
 app = FastAPI()
@@ -153,4 +162,13 @@ async def response_praise_endpoint(request: EmotionRequest):
     return {
         "text": text,
         "response": response
+    }
+
+@app.post("/filtering_post")
+async def filtering_post_endpoint(request: EmotionRequest):
+    text = request.text
+    response, score = filtering_post(text)
+    return {
+        "text": text,
+        "score": score
     }
