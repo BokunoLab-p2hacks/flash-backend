@@ -53,24 +53,21 @@ def responseGemini(text: str):
     res = model.generate_content(question)
     return res.text
 
-print(responseGemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
-print(responseGemini("夜中に目が覚めて、そこから全然眠れない。明日も仕事なのに…。"))
-print(responseGemini("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
-print(responseGemini("スマホ落として画面がバキバキに…。"))
+#print(responseGemini("スマホ落として画面がバキバキに…。"))
 
 def response_scold(text: str):
     question = f"{text}の文章に対してお叱りを2文以内で返してください。"
     res = model.generate_content(question)
     return res.text
 
-print(response_scold("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+#print(response_scold("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
 
 def response_praise(text: str):
     question = f"{text}の文章に対して褒め言葉を2文以内で返してください。"
     res = model.generate_content(question)
     return res.text
 
-print(response_praise("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+#print(response_praise("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
 
 def filtering_post(text: str):
     question = f"{text}の内容が誹謗中傷や差別的な表現、死、病気、体調などの意味を含む場合は-1、含まない場合は1を返してください。"
@@ -78,7 +75,7 @@ def filtering_post(text: str):
     score = int(res.text)
     return res.text, score
 
-print(filtering_post("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
+#print(filtering_post("忘れ物して会社に戻ったら、めちゃくちゃ怒られた。自分が情けない。"))
 
 def analyze_gemini(text: str):
     # 感情分析
@@ -89,7 +86,7 @@ def analyze_gemini(text: str):
     probs = [(emotion, float(prob)) for emotion, prob in probs]
     return probs, res.text
 
-print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
+#print(analyze_gemini("最近体調が優れなくて、何をするにもエネルギーが出ない…。"))
 
 # FastAPIアプリケーションの作成
 app = FastAPI()
